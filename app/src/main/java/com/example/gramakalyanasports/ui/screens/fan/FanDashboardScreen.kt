@@ -100,12 +100,6 @@ fun FanDashboardScreen(
             onClick = onStatsClick
         )
 
-        DashboardButton(
-
-            text = "🏆 Match Result",
-
-            onClick = onHistoryClick
-        )
     }
 }
 
@@ -124,7 +118,9 @@ private fun DashboardButton(
 
         onClick = onClick,
 
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
 
     ) {
 

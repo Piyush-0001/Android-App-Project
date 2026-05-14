@@ -16,7 +16,6 @@ import com.example.gramakalyanasports.ui.screens.admin.ManageTeamsScreen
 import com.example.gramakalyanasports.ui.screens.admin.ManagePlayersScreen
 import com.example.gramakalyanasports.ui.screens.admin.MatchScheduleScreen
 import com.example.gramakalyanasports.ui.screens.admin.LiveScoreScreen
-import com.example.gramakalyanasports.ui.screens.admin.MatchResultScreen
 import com.example.gramakalyanasports.ui.screens.admin.PlayerStatsScreen
 import com.example.gramakalyanasports.ui.screens.admin.ShareScoreScreen
 import com.example.gramakalyanasports.ui.screens.fan.FanDashboardScreen
@@ -34,6 +33,7 @@ import com.example.gramakalyanasports.data.model.Result
 import com.example.gramakalyanasports.data.model.PlayerStat
 import android.content.Intent
 import androidx.core.net.toUri
+import java.net.URLEncoder
 import com.example.gramakalyanasports.data.model.Score
 import com.example.gramakalyanasports.ui.screens.admin.MatchSetupScreen
 class MainActivity : ComponentActivity() {
@@ -521,6 +521,33 @@ class MainActivity : ComponentActivity() {
                         onStartMatch = {
                                 overs ->
 
+                            val teamAPlayers =
+
+                                squadMap[
+                                    liveMatch.teamA
+                                ] ?: emptyList()
+
+
+                            val teamBPlayers =
+
+                                squadMap[
+                                    liveMatch.teamB
+                                ] ?: emptyList()
+
+
+                            if (
+
+                                teamAPlayers.size !in 5..11 ||
+
+                                teamBPlayers.size !in 5..11 ||
+
+                                teamAPlayers.size != teamBPlayers.size
+
+                            ) {
+
+                                return@MatchSetupScreen
+                            }
+
 
                             liveScore = Score(
 
@@ -528,17 +555,9 @@ class MainActivity : ComponentActivity() {
 
                                 teamB = liveMatch.teamB,
 
-                                teamAPlayers =
+                                teamAPlayers = teamAPlayers,
 
-                                    squadMap[
-                                        liveMatch.teamA
-                                    ] ?: emptyList(),
-
-                                teamBPlayers =
-
-                                    squadMap[
-                                        liveMatch.teamB
-                                    ] ?: emptyList(),
+                                teamBPlayers = teamBPlayers,
 
                                 venue = liveMatch.venue,
 
@@ -640,7 +659,7 @@ class MainActivity : ComponentActivity() {
 
                                 ) {
 
-                                    "${10 - liveScore.wickets} wickets"
+                                    "${liveScore.teamAPlayers.size - 1 - liveScore.wickets} wickets"
 
                                 } else {
 
@@ -683,6 +702,32 @@ class MainActivity : ComponentActivity() {
 
                             matchResult =
                                 finalResult
+                            playerStat = PlayerStat(
+
+                            name = liveScore.striker.name,
+
+                            matches = 1,
+
+                            points = liveScore.striker.runs,
+
+                            awards = 1
+
+                            )
+
+                            FirebaseDatabaseManager.savePlayerStat(
+
+
+                            stat = playerStat,
+
+                            onSuccess = { },
+
+                            onFailure = {
+
+                                println(it)
+                            }
+
+                            )
+
 
 
                             FirebaseDatabaseManager.saveResult(
@@ -751,48 +796,22 @@ class MainActivity : ComponentActivity() {
 
                     PlayerStatsScreen(
 
-                        onSaveClick = { name: String,
-                                        matches: String,
-                                        points: String,
-                                        awards: String ->
-                            isLoading = true
+                        playerName = playerStat.name,
 
-                            FirebaseDatabaseManager.savePlayerStat(
+                        matches = playerStat.matches,
 
-                                stat = PlayerStat(
+                        runs = playerStat.points,
 
-                                    name,
+                        wickets = 0,
 
-                                    matches,
-
-                                    points,
-
-                                    awards
-                                ),
-
-                                onSuccess = {
-                                    isLoading = false
-
-                                    navController.popBackStack()
-                                },
-
-                                onFailure = {
-
-                                    android.util.Log.e(
-
-                                        "Firebase",
-
-                                        it
-                                    )
-                                }
-                            )
-                        },
+                        awards = playerStat.awards,
 
                         onBackClick = {
 
                             navController.popBackStack()
                         }
                     )
+
                 }
 
                 composable(
@@ -826,7 +845,7 @@ class MainActivity : ComponentActivity() {
 
                                 Intent.ACTION_VIEW,
 
-                                "https://wa.me/?text=$text".toUri()
+                                "https://wa.me/?text=${URLEncoder.encode(text, "UTF-8")}".toUri()
                             )
 
                             startActivity(intent)

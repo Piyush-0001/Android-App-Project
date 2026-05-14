@@ -1,131 +1,156 @@
 package com.example.gramakalyanasports.ui.screens.admin
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun PlayerStatsScreen(
 
-    onSaveClick: (
-        String,
-        String,
-        String,
-        String
-    ) -> Unit,
+playerName: String,
 
-    onBackClick: () -> Unit
+matches: Int,
+
+runs: Int,
+
+wickets: Int,
+
+awards: Int,
+
+onBackClick: () -> Unit
 
 ) {
 
-    var name by remember { mutableStateOf("") }
-
-    var matches by remember { mutableStateOf("") }
-
-    var points by remember { mutableStateOf("") }
-
-    var awards by remember { mutableStateOf("") }
-
-
     Column(
+
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+
     ) {
 
         OutlinedTextField(
-            value = name,
-            onValueChange = {
-                name = it
-            },
+
+            value = playerName,
+
+            onValueChange = { },
+
+            readOnly = true,
+
+            modifier = Modifier.fillMaxWidth(),
+
             label = {
                 Text("Player Name")
             }
         )
 
 
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+
         OutlinedTextField(
-            value = matches,
-            onValueChange = {
-                matches = it
-            },
+
+            value = matches.toString(),
+
+            onValueChange = { },
+
+            readOnly = true,
+
+            modifier = Modifier.fillMaxWidth(),
+
             label = {
                 Text("Matches")
             }
         )
 
 
-        OutlinedTextField(
-            value = points,
-            onValueChange = {
-                points = it
-            },
-            label = {
-                Text("Points")
-            }
+        Spacer(
+            modifier = Modifier.height(12.dp)
         )
 
 
         OutlinedTextField(
-            value = awards,
-            onValueChange = {
-                awards = it
-            },
+
+            value = runs.toString(),
+
+            onValueChange = { },
+
+            readOnly = true,
+
+            modifier = Modifier.fillMaxWidth(),
+
+            label = {
+                Text("Runs")
+            }
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+
+        OutlinedTextField(
+
+            value = wickets.toString(),
+
+            onValueChange = { },
+
+            readOnly = true,
+
+            modifier = Modifier.fillMaxWidth(),
+
+            label = {
+                Text("Wickets")
+            }
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+
+        OutlinedTextField(
+
+            value = awards.toString(),
+
+            onValueChange = { },
+
+            readOnly = true,
+
+            modifier = Modifier.fillMaxWidth(),
+
             label = {
                 Text("Awards")
             }
         )
 
 
-        Button(
-
-            onClick = {
-
-                if (
-
-                    name.isBlank() ||
-
-                    matches.isBlank() ||
-
-                    points.isBlank() ||
-
-                    awards.isBlank()
-
-                ) {
-
-                    return@Button
-                }
-
-
-                onSaveClick(
-
-                    name,
-
-                    matches,
-
-                    points,
-
-                    awards
-                )
-            },
-        ) {
-
-            Text("Save Stats")
-        }
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
 
         TextButton(
+
             onClick = onBackClick
+
         ) {
 
             Text("Back")
         }
     }
+
 }

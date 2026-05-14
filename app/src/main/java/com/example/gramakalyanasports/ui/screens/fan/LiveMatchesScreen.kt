@@ -1,6 +1,11 @@
 package com.example.gramakalyanasports.ui.screens.fan
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -11,17 +16,60 @@ import androidx.compose.ui.unit.sp
 import com.example.gramakalyanasports.data.model.ScheduledMatch
 import com.example.gramakalyanasports.data.model.Score
 
-
 @Composable
 fun LiveMatchesScreen(
+match: ScheduledMatch,
 
-    match: ScheduledMatch,
+score: Score,
 
-    score: Score,
-
-    onBackClick: () -> Unit
+onBackClick: () -> Unit
 
 ) {
+
+    val strikerName =
+
+        if (
+
+            score.striker.name.isBlank()
+
+        )
+
+            "Yet to bat"
+
+        else
+
+            score.striker.name
+
+
+    val nonStrikerName =
+
+        if (
+
+            score.nonStriker.name.isBlank()
+
+        )
+
+            "Yet to bat"
+
+        else
+
+            score.nonStriker.name
+
+
+    val bowlerName =
+
+        if (
+
+            score.bowler.name.isBlank()
+
+        )
+
+            "Yet to bowl"
+
+        else
+
+            score.bowler.name
+
 
     Column(
 
@@ -50,7 +98,7 @@ fun LiveMatchesScreen(
 
         Text(
 
-            text = "${score.teamA} vs ${score.teamB}",
+            text = "${match.teamA} vs ${match.teamB}",
 
             fontSize = 28.sp
         )
@@ -73,6 +121,25 @@ fun LiveMatchesScreen(
             text = "${score.overs}.${score.balls} Overs"
         )
 
+
+        Text(
+            text = "Innings: ${score.innings}"
+        )
+
+
+        if (
+
+            score.innings == 2
+
+        ) {
+
+            Text(
+
+                text = "Target: ${score.target}"
+            )
+        }
+
+
         Spacer(
             modifier = Modifier.height(12.dp)
         )
@@ -82,7 +149,7 @@ fun LiveMatchesScreen(
 
             text =
 
-                "${score.striker.name}* " +
+                "$strikerName* " +
 
                         "${score.striker.runs}" +
 
@@ -94,7 +161,7 @@ fun LiveMatchesScreen(
 
             text =
 
-                "${score.nonStriker.name} " +
+                "$nonStrikerName " +
 
                         "${score.nonStriker.runs}" +
 
@@ -111,7 +178,7 @@ fun LiveMatchesScreen(
 
             text =
 
-                "${score.bowler.name} " +
+                "$bowlerName " +
 
                         "${score.bowler.wickets} wkts"
         )

@@ -15,15 +15,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gramakalyanasports.data.model.Result
 
-
 @Composable
 fun MatchHistoryScreen(
 
-    result: Result,
+result: Result,
 
-    onBackClick: () -> Unit
+onBackClick: () -> Unit
 
 ) {
+
+    val resultText =
+
+        if (
+
+            result.winningText.isBlank()
+
+        )
+
+            "⏳ No match completed yet"
+
+        else
+
+            "${result.winningText}\n\n" +
+
+                    "${result.teamA} vs ${result.teamB}\n\n" +
+
+                    "Score: " +
+
+                    "${result.finalRuns}/" +
+
+                    "${result.finalWickets}\n" +
+
+                    "Overs: " +
+
+                    "${result.finalOvers}." +
+
+                    "${result.finalBalls}"
+
 
     Column(
 
@@ -53,47 +81,7 @@ fun MatchHistoryScreen(
 
 
         Text(
-
-            text = result.winningText
-        )
-
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Text(
-
-            text =
-
-                "${result.teamA} vs ${result.teamB}",
-
-            fontSize = 20.sp
-        )
-
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        Text(
-
-            text =
-
-                "${result.finalRuns}/" +
-
-                        "${result.finalWickets}"
-        )
-
-
-        Text(
-
-            text =
-
-                "${result.finalOvers}." +
-
-                        "${result.finalBalls} Overs"
+            text = resultText
         )
 
 
@@ -103,10 +91,13 @@ fun MatchHistoryScreen(
 
 
         TextButton(
+
             onClick = onBackClick
+
         ) {
 
             Text("Back")
         }
     }
+
 }

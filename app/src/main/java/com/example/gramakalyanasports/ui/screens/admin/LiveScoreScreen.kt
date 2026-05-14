@@ -15,7 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.example.gramakalyanasports.data.model.Player
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.DropdownMenu
 
 
 @Composable
@@ -172,12 +172,54 @@ fun LiveScoreScreen(
         )
     }
 
+    var strikerExpanded by remember {
+
+        mutableStateOf(
+            false
+        )
+    }
+
+
+    var nonStrikerExpanded by remember {
+
+        mutableStateOf(
+            false
+        )
+    }
+
+    var wicketBatsmanExpanded by remember {
+
+        mutableStateOf(
+            false
+        )
+    }
+
+
+    var wicketBatsmanName by remember {
+
+        mutableStateOf("")
+    }
+
     var playersSelected by remember {
 
         mutableStateOf(
             striker.name.isNotBlank()
         )
     }
+
+    var waitingForWicketBatsman by remember {
+
+        mutableStateOf(
+            false
+        )
+    }
+
+    var waitingForNextOverBowler by remember {
+
+        mutableStateOf(false)
+
+    }
+
 
     var nextBatsmanIndex by remember {
 
@@ -199,6 +241,12 @@ fun LiveScoreScreen(
         mutableStateOf(
             0
         )
+    }
+
+    var lastBallType by remember {
+
+        mutableStateOf("")
+
     }
 
     val battingPlayers =
@@ -237,6 +285,35 @@ fun LiveScoreScreen(
 
         nonStriker = temp
     }
+
+    fun updateBall() {
+        balls++
+
+        if (
+
+            balls == 6
+
+        ) {
+
+            balls = 0
+
+            overs++
+
+            swapStrike()
+
+            lastOverBowler = bowler.name
+
+            bowler = Player()
+
+            bowlerName = ""
+
+            playersSelected = false
+
+            waitingForNextOverBowler = true
+        }
+
+    }
+
 
 
     val runRate = remember(
@@ -501,86 +578,9 @@ fun LiveScoreScreen(
             !playersSelected
 
         ) {
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-
-
-            Button(
-
-                onClick = {
-
-                    bowlerExpanded =
-                        true
-                },
-
-                modifier = Modifier.fillMaxWidth()
-
-            ) {
-
-                Text(
-
-                    if (
-
-                        bowlerName.isBlank()
-
-                    )
-
-                        "Select Bowler ▼"
-
-                    else
-
-                        "$bowlerName ▼"
-                )
-            }
-
-
-            androidx.compose.material3.DropdownMenu(
-
-                expanded = bowlerExpanded,
-
-                onDismissRequest = {
-
-                    bowlerExpanded =
-                        false
-                }
-
-            ) {
-
-                bowlingPlayers.forEach {
-
-                        playerName ->
-
-                    DropdownMenuItem(
-
-                        text = {
-
-                            Text(
-                                playerName
-                            )
-                        },
-
-                        onClick = {
-
-                            bowlerName =
-                                playerName
-
-                            bowlerExpanded =
-                                false
-                        }
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
             if (
 
-                striker.name.isBlank()
+                waitingForWicketBatsman
 
             ) {
 
@@ -588,113 +588,509 @@ fun LiveScoreScreen(
 
                     onClick = {
 
+                        wicketBatsmanExpanded = true
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                ) {
+
+                    Text(
+
                         if (
 
-                            bowlerName.isBlank()
+                            wicketBatsmanName.isBlank()
+
+                        )
+
+                            "Select Next Batsman ▼"
+                        else
+
+                            "$wicketBatsmanName ▼"
+                    )
+                }
+
+
+                DropdownMenu(
+
+                    expanded = wicketBatsmanExpanded,
+
+                    onDismissRequest = {
+
+                        wicketBatsmanExpanded = false
+                    }
+
+                ) {
+
+                    battingPlayers
+                        .filter {
+
+                            it != strikerName
+                        }
+                        .forEach {
+
+                            playerName ->
+
+                        DropdownMenuItem(
+
+                            text = {
+
+                                Text(playerName)
+                            },
+
+                            onClick = {
+
+                                wicketBatsmanName = playerName
+
+                                wicketBatsmanExpanded = false
+                            }
+                        )
+                    }
+                }
+
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+                Button(
+
+                    onClick = {
+
+                        if (
+
+                            wicketBatsmanName.isBlank()
 
                         ) {
 
                             return@Button
                         }
 
+
                         if (
 
-                            battingPlayers.size >= 2
+                            waitingForNextOverBowler
 
-                        ) {
-
-                            striker = Player(
-
-                                name = battingPlayers[0]
-                            )
+                        ){
 
                             nonStriker = Player(
 
-                                name = battingPlayers[1]
+                                name = wicketBatsmanName
                             )
+
+                        } else {
+
+                            striker = Player(
+
+                                name = wicketBatsmanName
+                            )
+
                         }
 
-                        bowler = Player(
 
-                            name = bowlerName
-                        )
+                        waitingForWicketBatsman = false
 
+                        if (
+
+                        waitingForNextOverBowler
+
+                        ) {
+
+                        playersSelected = false
+
+                    } else {
                         playersSelected = true
+
+                    }
+
+
+                        wicketBatsmanName = ""
 
 
                         onScoreUpdate(
 
-                            score.copy(
+                        score.copy(
 
-                                striker = striker,
+                            striker = striker,
 
-                                nonStriker = nonStriker,
+                            nonStriker = nonStriker,
 
-                                bowler = bowler
-                            )
+                            bowler = bowler,
+
+                            runs = runs,
+
+                            wickets = wickets,
+
+                            overs = overs,
+
+                            balls = balls,
+
+                            innings = innings,
+
+                            target = target,
+
+                            battingTeam = battingTeam,
+
+                            bowlingTeam = bowlingTeam
                         )
+
+                        )
+
                     }
 
                 ) {
 
-                    Text(
-                        "Start Innings"
-                    )
+                    Text("Continue")
                 }
-            }
+            }else {
 
-            if (
 
-                striker.name.isNotBlank() &&
 
-                !playersSelected
-
-            ) {
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
                 Button(
 
                     onClick = {
 
+                        strikerExpanded = true
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                ) {
+
+                    Text(
+
+
                         if (
 
-                            bowlerName == lastOverBowler
+                            strikerName.isBlank()
 
-                        ) {
+                        )
 
-                            return@Button
+                            "Select Striker ▼"
+                        else
+
+                            "$strikerName ▼"
+                    )
+                }
+
+
+                DropdownMenu(
+
+                    expanded = strikerExpanded,
+
+                    onDismissRequest = {
+
+                        strikerExpanded = false
+                    }
+
+                ) {
+
+                    battingPlayers.forEach {
+
+                            playerName ->
+
+                        DropdownMenuItem(
+
+                            text = {
+
+                                Text(playerName)
+                            },
+
+                            onClick = {
+
+                                strikerName = playerName
+
+                                strikerExpanded = false
+                            }
+                        )
+                    }
+                }
+
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+                Button(
+
+                    onClick = {
+
+                        nonStrikerExpanded = true
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                ) {
+
+                    Text(
+
+                        if (
+
+                            nonStrikerName.isBlank()
+
+                        )
+
+                            "Select Non-Striker ▼"
+                        else
+
+                            "$nonStrikerName ▼"
+                    )
+                }
+
+
+                DropdownMenu(
+
+                    expanded = nonStrikerExpanded,
+
+                    onDismissRequest = {
+
+                        nonStrikerExpanded = false
+                    }
+
+                ) {
+
+                    battingPlayers
+                        .filter {
+
+                            it != strikerName
                         }
+                        .forEach {
+
+                                playerName ->
+
+                        DropdownMenuItem(
+
+                            text = {
+
+                                Text(playerName)
+                            },
+
+                            onClick = {
+
+                                nonStrikerName = playerName
+
+                                nonStrikerExpanded = false
+                            }
+                        )
+                    }
+                }
+
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+
+                Button(
+
+                    onClick = {
+
+                        bowlerExpanded =
+                            true
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                ) {
+
+                    Text(
 
                         if (
 
                             bowlerName.isBlank()
 
-                        ) {
-
-                            return@Button
-                        }
-
-                        bowler = Player(
-
-                            name = bowlerName
                         )
 
-                        playersSelected = true
+                            "Select Bowler ▼"
+                        else
+
+                            "$bowlerName ▼"
+                    )
+                }
 
 
-                        onScoreUpdate(
+                androidx.compose.material3.DropdownMenu(
 
-                            score.copy(
+                    expanded = bowlerExpanded,
 
-                                bowler = bowler
-                            )
-                        )
+                    onDismissRequest = {
+
+                        bowlerExpanded =
+                            false
                     }
 
                 ) {
 
-                    Text(
-                        "Start Next Over"
-                    )
+                    bowlingPlayers.forEach {
+
+                            playerName ->
+
+                        DropdownMenuItem(
+
+                            text = {
+
+                                Text(
+                                    playerName
+                                )
+                            },
+
+                            onClick = {
+
+                                bowlerName =
+                                    playerName
+
+                                bowlerExpanded =
+                                    false
+                            }
+                        )
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                if (
+
+                    striker.name.isBlank()
+
+                ) {
+
+                    Button(
+
+                        onClick = {
+
+                            if (
+
+                                bowlerName.isBlank()
+
+                            ) {
+
+                                return@Button
+                            }
+
+                            if (
+
+                                strikerName.isBlank() ||
+
+                                nonStrikerName.isBlank() ||
+
+                                bowlerName.isBlank() ||
+
+                                strikerName == nonStrikerName
+
+                            ) {
+
+                                return@Button
+                            }
+
+
+                            striker = Player(
+
+                                name = strikerName
+                            )
+
+
+                            nonStriker = Player(
+
+                                name = nonStrikerName
+                            )
+
+                            bowler = Player(
+
+                                name = bowlerName
+                            )
+
+                            playersSelected = true
+
+
+                            onScoreUpdate(
+
+                                score.copy(
+
+                                    striker = striker,
+
+                                    nonStriker = nonStriker,
+
+                                    bowler = bowler
+                                )
+                            )
+                        }
+
+                    ) {
+
+                        Text(
+                            "Start Innings"
+                        )
+                    }
+                }
+
+                if (
+
+
+                striker.name.isNotBlank() &&
+
+                        !playersSelected &&
+
+                        !waitingForWicketBatsman
+
+
+                ) {
+
+
+                Button(
+
+                        onClick = {
+
+                            if (
+
+                                bowlerName == lastOverBowler
+
+                            ) {
+
+                                return@Button
+                            }
+
+                            if (
+
+                                bowlerName.isBlank()
+
+                            ) {
+
+                                return@Button
+                            }
+
+                            bowler = Player(
+
+                                name = bowlerName
+                            )
+
+                            playersSelected = true
+                            waitingForNextOverBowler = false
+
+
+                            onScoreUpdate(
+
+                                score.copy(
+
+                                    bowler = bowler
+                                )
+                            )
+                        }
+
+                    ) {
+
+                        Text(
+                            "Start Next Over"
+                        )
+                    }
                 }
             }
         }
@@ -876,6 +1272,8 @@ fun LiveScoreScreen(
                     onClick = {
 
                         runs++
+                        lastBallType = "1"
+                        updateBall()
                         partnershipRuns++
 
                         partnershipBalls++
@@ -925,6 +1323,8 @@ fun LiveScoreScreen(
                     onClick = {
 
                         runs += 2
+                        lastBallType = "2"
+                        updateBall()
                         partnershipRuns += 2
 
                         partnershipBalls++
@@ -972,6 +1372,8 @@ fun LiveScoreScreen(
                     onClick = {
 
                         runs += 3
+                        lastBallType = "3"
+                        updateBall()
                         partnershipRuns += 3
 
                         partnershipBalls++
@@ -1021,29 +1423,22 @@ fun LiveScoreScreen(
 
                     onClick = {
 
-                        wickets++
+                        val updatedWickets = wickets + 1
+                        lastBallType = "W"
+                        updateBall()
+
+                        wickets = updatedWickets
                         partnershipRuns = 0
 
                         partnershipBalls = 0
-                        if (
+                        wicketBatsmanExpanded = false
 
-                            nextBatsmanIndex <
+                        wicketBatsmanName = ""
 
-                            battingPlayers.size
+                        waitingForWicketBatsman = true
 
-                        ) {
+                        playersSelected = false
 
-                            striker = Player(
-
-                                name =
-
-                                    battingPlayers[
-                                        nextBatsmanIndex
-                                    ]
-                            )
-
-                            nextBatsmanIndex++
-                        }
                         bowler = bowler.copy(
 
                             wickets = bowler.wickets + 1
@@ -1052,9 +1447,7 @@ fun LiveScoreScreen(
 
                         if (
 
-                            wickets >=
-
-                            battingPlayers.size - 1
+                            updatedWickets >= battingPlayers.size - 1
 
                         ) {
 
@@ -1108,7 +1501,18 @@ fun LiveScoreScreen(
 
                                 playersSelected = false
 
+                                waitingForWicketBatsman = false
+
+                                wicketBatsmanName = ""
+
+                                strikerName = ""
+
+                                nonStrikerName = ""
+
+                                bowlerName = ""
+
                                 nextBatsmanIndex = 2
+
 
                             } else {
 
@@ -1121,18 +1525,11 @@ fun LiveScoreScreen(
 
                             score.copy(
 
-                                nextBatsmanIndex =
-                                    nextBatsmanIndex,
-
                                 striker = striker,
 
                                 nonStriker = nonStriker,
 
                                 bowler = bowler,
-
-                                innings = innings,
-
-                                target = target,
 
                                 runs = runs,
 
@@ -1142,11 +1539,13 @@ fun LiveScoreScreen(
 
                                 balls = balls,
 
-                                battingTeam =
-                                    battingTeam,
+                                innings = innings,
 
-                                bowlingTeam =
-                                    bowlingTeam
+                                target = target,
+
+                                battingTeam = battingTeam,
+
+                                bowlingTeam = bowlingTeam
                             )
                         )
                     }
@@ -1177,6 +1576,8 @@ fun LiveScoreScreen(
                     onClick = {
 
                         runs += 4
+                        lastBallType = "4"
+                        updateBall()
                         partnershipRuns += 4
 
                         partnershipBalls++
@@ -1233,6 +1634,8 @@ fun LiveScoreScreen(
                     onClick = {
 
                         runs += 6
+                        lastBallType = "6"
+                        updateBall()
                         partnershipRuns += 6
 
                         partnershipBalls++
@@ -1288,33 +1691,16 @@ fun LiveScoreScreen(
 
                     onClick = {
 
-                        balls++
                         partnershipBalls++
+                        lastBallType = "DOT"
 
                         striker = striker.copy(
 
                             balls = striker.balls + 1
+
                         )
 
-
-                        if (
-
-                            balls == 6
-
-                        ) {
-
-                            balls = 0
-
-                            overs++
-
-                            swapStrike()
-                            lastOverBowler = bowler.name
-                            bowler = Player()
-
-                            bowlerName = ""
-
-                            playersSelected = false
-                        }
+                        updateBall()
 
 
                         if (
@@ -1373,7 +1759,18 @@ fun LiveScoreScreen(
 
                                 playersSelected = false
 
+                                waitingForWicketBatsman = false
+
+                                wicketBatsmanName = ""
+
+                                strikerName = ""
+
+                                nonStrikerName = ""
+
+                                bowlerName = ""
+
                                 nextBatsmanIndex = 2
+
 
                             } else {
 
@@ -1438,8 +1835,9 @@ fun LiveScoreScreen(
                     onClick = {
 
                         wides++
-
+                        lastBallType = "WD"
                         runs++
+
 
 
                         if (
@@ -1476,7 +1874,7 @@ fun LiveScoreScreen(
                     onClick = {
 
                         noBalls++
-
+                        lastBallType = "NB"
                         runs++
 
 
@@ -1513,30 +1911,268 @@ fun LiveScoreScreen(
 
                     onClick = {
 
-                        if (
+                        when (
 
-                            runs > 0
+                            lastBallType
 
                         ) {
 
-                            runs--
+                            "1" -> {
+
+                                runs -= 1
+
+                                partnershipRuns -= 1
+
+                                partnershipBalls -= 1
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    runs = striker.runs - 1,
+
+                                    balls = striker.balls - 1
+                                )
+
+                                swapStrike()
+                            }
+
+                            "2" -> {
+
+                                runs -= 2
+
+                                partnershipRuns -= 2
+
+                                partnershipBalls -= 1
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    runs = striker.runs - 2,
+
+                                    balls = striker.balls - 1
+                                )
+                            }
+
+                            "3" -> {
+
+                                runs -= 3
+
+                                partnershipRuns -= 3
+
+                                partnershipBalls -= 1
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    runs = striker.runs - 3,
+
+                                    balls = striker.balls - 1
+                                )
+
+                                swapStrike()
+                            }
+
+                            "4" -> {
+
+                                runs -= 4
+
+                                fours--
+
+                                partnershipRuns -= 4
+
+                                partnershipBalls -= 1
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    runs = striker.runs - 4,
+
+                                    balls = striker.balls - 1
+                                )
+                            }
+
+                            "6" -> {
+
+                                runs -= 6
+
+                                sixes--
+
+                                partnershipRuns -= 6
+
+                                partnershipBalls -= 1
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    runs = striker.runs - 6,
+
+                                    balls = striker.balls - 1
+                                )
+                            }
+
+                            "DOT" -> {
+
+                                partnershipBalls--
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+
+                                striker = striker.copy(
+
+                                    balls = striker.balls - 1
+                                )
+                            }
+
+                            "WD" -> {
+
+                                runs--
+
+                                wides--
+                            }
+
+                            "NB" -> {
+
+                                runs--
+
+                                noBalls--
+                            }
+
+                            "W" -> {
+
+                                wickets--
+
+                                partnershipBalls--
+
+                                if (
+
+                                    balls == 0
+
+                                ) {
+
+                                    overs--
+
+                                    balls = 5
+
+                                } else {
+
+                                    balls--
+
+                                }
+                            }
                         }
 
+                        lastBallType = ""
 
                         onScoreUpdate(
 
                             score.copy(
 
+                                striker = striker,
+
+                                nonStriker = nonStriker,
+
+                                bowler = bowler,
+
                                 runs = runs,
 
-                                wides = wides,
+                                wickets = wickets,
 
-                                noBalls = noBalls,
+                                overs = overs,
 
-                                runRate = runRate
+                                balls = balls
                             )
                         )
+
                     }
+
 
                 ) {
 
@@ -1602,7 +2238,18 @@ fun LiveScoreScreen(
 
                         playersSelected = false
 
+                        waitingForWicketBatsman = false
+
+                        wicketBatsmanName = ""
+
+                        strikerName = ""
+
+                        nonStrikerName = ""
+
+                        bowlerName = ""
+
                         nextBatsmanIndex = 2
+
 
 
                         onScoreUpdate(

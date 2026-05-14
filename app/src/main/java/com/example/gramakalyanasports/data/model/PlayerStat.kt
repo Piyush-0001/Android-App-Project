@@ -4,10 +4,10 @@ data class PlayerStat(
 
     val name: String = "",
 
-    val matches: String = "",
+    val matches: Int = 0,
 
-    val points: String = "",
+    val points: Int = 0,
 
-    val awards: String = ""
+    val awards: Int = 0
 
 )

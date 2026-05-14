@@ -38,48 +38,37 @@ fun ShareScoreScreen(
     ) {
 
         Text(
+        text =
 
-            text = result.winningText,
+            "${result.winningText}\n\n" +
 
-            fontSize = 24.sp
+                    "Score: " +
+
+                    "${result.finalRuns}/" +
+
+                    "${result.finalWickets}\n" +
+
+                    "Overs: " +
+
+                    "${result.finalOvers}." +
+
+                    "${result.finalBalls}",
+
+        fontSize = 20.sp
         )
-
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-
-        Text(
-
-            text =
-
-                "${result.finalRuns}/" +
-
-                        "${result.finalWickets}"
-        )
-
-
-        Text(
-
-            text =
-
-                "${result.finalOvers}." +
-
-                        "${result.finalBalls} Overs"
-        )
-
 
         Spacer(
             modifier = Modifier.height(24.dp)
         )
 
 
+
         Button(
             onClick = onShareClick
         ) {
 
-            Text("Share on WhatsApp")
+            Text("Share Result")
+
         }
 
 

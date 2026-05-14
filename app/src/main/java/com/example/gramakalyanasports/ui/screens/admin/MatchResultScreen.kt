@@ -18,22 +18,18 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MatchResultScreen(
 
+    winner: String,
+
+    finalScore: String,
+
     onSaveClick: (
-        String,
-        String,
         String
     ) -> Unit,
+
 
     onBackClick: () -> Unit
 ) {
 
-    var winner by remember {
-        mutableStateOf("")
-    }
-
-    var finalScore by remember {
-        mutableStateOf("")
-    }
 
     var manOfTheMatch by remember {
         mutableStateOf("")
@@ -59,13 +55,17 @@ fun MatchResultScreen(
 
         OutlinedTextField(
             value = winner,
-            onValueChange = {
-                winner = it
-            },
+
+            onValueChange = { },
+
+            readOnly = true,
+
             label = {
                 Text("Winner Team")
             },
+
             modifier = Modifier.fillMaxWidth()
+
         )
 
 
@@ -75,15 +75,19 @@ fun MatchResultScreen(
 
 
         OutlinedTextField(
-            value = finalScore,
-            onValueChange = {
-                finalScore = it
-            },
-            label = {
-                Text("Final Score")
-            },
-            modifier = Modifier.fillMaxWidth()
+        value = finalScore,
+
+        onValueChange = { },
+
+        readOnly = true,
+
+        label = {
+            Text("Final Score")
+        },
+
+        modifier = Modifier.fillMaxWidth()
         )
+
 
 
         Spacer(
@@ -126,13 +130,10 @@ fun MatchResultScreen(
 
 
                 onSaveClick(
+                manOfTheMatch
 
-                    winner,
-
-                    finalScore,
-
-                    manOfTheMatch
                 )
+
             },
             modifier = Modifier.fillMaxWidth()
         ) {
