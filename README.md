@@ -150,20 +150,6 @@ app/google-services.json
 
 ---
 
-## Screenshots
-
-Add screenshots here.
-
-Example:
-
-- Splash Screen
-- Admin Dashboard
-- Live Score Screen
-- Fan View
-- Match Result Screen
-
----
-
 ## Future Enhancements
 
 - Kabaddi scoring
